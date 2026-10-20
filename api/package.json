@@ -1,0 +1,31 @@
+{
+  "name": "reminder-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "db:migrate": "node scripts/with-env.cjs prisma migrate dev",
+    "db:deploy": "node scripts/with-env.cjs prisma migrate deploy",
+    "db:studio": "node scripts/with-env.cjs prisma studio",
+    "postinstall": "prisma generate",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@prisma/client": "^6.5.0",
+    "prisma": "^6.5.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

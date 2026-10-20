@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  lineUserId  String       @unique
+  displayName String
+  pictureUrl  String?
+  createdAt   DateTime     @default(now())
+  courses     Course[]
+  assignments Assignment[]
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code        String?
+  name        String
+  professor   String?
+  color       String
+  createdAt   DateTime     @default(now())
+  assignments Assignment[]
+
+  @@index([userId])
+}
+
+enum AssignmentType {
+  ASSIGNMENT
+  GROUP_WORK
+  SMALL_QUIZ
+  EXAM
+}
+
+enum AssignmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+}
+
+// DRAFT = extracted by the bot, waiting for Confirm in LINE. Hidden on the website.
+enum RecordState {
+  DRAFT
+  CONFIRMED
+}
+
+model Assignment {
+  id           String           @id @default(cuid())
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId     String?
+  course       Course?          @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  title        String
+  type         AssignmentType   @default(ASSIGNMENT)
+  status       AssignmentStatus @default(NOT_STARTED)
+  state        RecordState      @default(CONFIRMED)
+  // Start is a whole day (defaults to the day it was sent to the bot)
+  startDate    DateTime         @db.Date
+  // Deadline as an exact moment. If the post had no time, it is 23:59 Bangkok and dueTimeKnown=false
+  dueAt        DateTime?        @db.Timestamptz(3)
+  dueTimeKnown Boolean          @default(false)
+  details      String           @default("")
+  // Where it came from
+  sourceText   String?
+  sourceImage  String?
+  // Course the AI saw in the post but that isn't in the course list yet
+  suggestedCourseCode String?
+  suggestedCourseName String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([userId, state])
+  @@index([userId, dueAt])
+}
